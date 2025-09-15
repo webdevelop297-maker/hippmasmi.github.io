@@ -4,10 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 import Navigation from "@/components/Navigation";
-import ProgramAdmin from "@/pages/ProgramAdmin";
-import News from "@/pages/News";
-import ArticleDetail from "@/pages/ArticleDetail";
 
 // Pages
 import Index from "./pages/Index";
@@ -17,9 +16,16 @@ import Sejarah from "./pages/Sejarah";
 import Program from "./pages/Program";
 import DatabaseKader from "./pages/DatabaseKader";
 import NotFound from "./pages/NotFound";
-import { useEffect, useState } from "react";
 
-// 🔒 Komponen proteksi (bisa dipakai banyak route)
+// News Pages
+import NewsAll from "@/pages/NewsAll"; // publik: daftar berita
+import ArticleDetail from "@/pages/ArticleDetail";
+import NewsAdmin from "@/pages/NewsAll"; // admin: kelola berita
+
+// Admin Pages
+import ProgramAdmin from "@/pages/ProgramAdmin";
+
+// 🔒 Komponen proteksi (hanya untuk admin)
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
@@ -56,7 +62,9 @@ const App = () => (
           <Route path="/sejarah" element={<Sejarah />} />
           <Route path="/program" element={<Program />} />
           <Route path="/database-kader" element={<DatabaseKader />} />
-          <Route path="/news" element={<News />} />
+
+          {/* Berita publik */}
+          <Route path="/news" element={<NewsAll />} />
           <Route path="/artikel/:id" element={<ArticleDetail />} />
 
           {/* 🔒 Admin-only routes */}
@@ -72,7 +80,7 @@ const App = () => (
             path="/admin/berita"
             element={
               <PrivateRoute>
-                <News />
+                <NewsAdmin />
               </PrivateRoute>
             }
           />
