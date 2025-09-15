@@ -5,7 +5,7 @@ const Profil = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Profil Organisasi</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Profil Himpunan Pemuda Pelajar Mahasiswa Sukabumi(HIPPMA)</h1>
           <p className="text-xl text-muted-foreground">
             Mengenal lebih dekat visi, misi, dan tujuan organisasi kami
           </p>
@@ -14,33 +14,42 @@ const Profil = () => {
         <div className="grid gap-8 md:grid-cols-2">
           <Card className="shadow-card hover:shadow-hover transition-shadow">
             <CardHeader>
-              <CardTitle className="text-primary">Visi Organisasi</CardTitle>
+              <CardTitle className="text-primary">Visi HIPPMA</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">
-                Menjadi organisasi terdepan yang memberikan kontribusi nyata bagi kemajuan bangsa 
-                dan kesejahteraan masyarakat melalui pemberdayaan kader-kader berkualitas.
+                <li><b>KOLABORATIF :</b> Kolaboratif merupakan bentuk pergerakan HIPPMA yang selalu 
+                  bekerjasama dengan intansi atau organisasi untuk mencapai tujuan bersama</li>
+                <li><b>SOLUTIF :</b> HIPPMA menjadi pemecah masalah tidak hanya mengkritik, tapi memberikan 
+                  dan menawarkan solusi</li>
+                <li><b>PEDULI :</b> HIPPMA peduli sesame berarti kita akan selalu ada untuk masyarakat</li>
+                <li><b>MEMBERDAYAKAN :</b> Memberdayakan dalam HIPPMA akan selalu dijunjung tinggi karena kami 
+                  percaya dengan sama-sama memberdayakan semuanya lebih hebat</li>
               </p>
             </CardContent>
           </Card>
 
           <Card className="shadow-card hover:shadow-hover transition-shadow">
             <CardHeader>
-              <CardTitle className="text-primary">Misi Organisasi</CardTitle>
+              <CardTitle className="text-primary">Misi HIPPMA</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-muted-foreground">
-                <li>• Mengembangkan potensi anggota secara berkelanjutan</li>
-                <li>• Membangun jaringan kemitraan strategis</li>
-                <li>• Menjalankan program-program pemberdayaan masyarakat</li>
-                <li>• Menegakkan nilai-nilai integritas dan profesionalisme</li>
+                <p><b>1. MEMBERDAYAKAN PEMUDA DAN MASYARAKAT</b></p>
+                <p>Himpunan Pemuda Pelajar Mahasiswa (HIPPMA) selalu berusaha untuk memberdayakan 
+                  pemuda dan masyarakat untuk berpartisipasi dalam pembangunan daerah khusus nya dalam 
+                  bidang pendidikan, kesehatan, dan sosial.</p>
+                <p><b>2. MENGINSPIRASI SELURUH LAPISAN MASYARAKAT</b></p>    
+                <p>Himpunan Pemuda Pelajar Mahasiswa (HIPPMA) selalu berusaha untuk mengiinspirasi untuk 
+                  terus bergerak bagi perkembangan bangsa Indonesia maupun daerah melalui pemerataan 
+                  keadilan dan kesejahteraan.</p>
               </ul>
             </CardContent>
           </Card>
 
           <Card className="shadow-card hover:shadow-hover transition-shadow md:col-span-2">
             <CardHeader>
-              <CardTitle className="text-primary">Nilai-Nilai Organisasi</CardTitle>
+              <CardTitle className="text-primary">Nilai-Nilai HIPPMA</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

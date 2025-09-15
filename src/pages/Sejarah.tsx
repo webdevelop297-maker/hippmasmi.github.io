@@ -38,9 +38,9 @@ const Sejarah = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Sejarah Organisasi</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Sejarah HIPPMA</h1>
           <p className="text-xl text-muted-foreground">
-            Perjalanan panjang organisasi dalam membangun bangsa
+            Perjalanan panjang Himpunan Pemuda Pelajar Mahasiswa Sukabumi dalam membangun bangsa
           </p>
         </div>
 
@@ -50,9 +50,15 @@ const Sejarah = () => {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground leading-relaxed text-center">
-              Organisasi ini lahir dari keprihatinan sekelompok anak bangsa terhadap kondisi sosial politik Indonesia 
-              yang membutuhkan peran aktif generasi muda dalam pembangunan. Dengan semangat persatuan dan kesatuan, 
-              organisasi ini bertekad menjadi wadah pengembangan potensi generasi muda untuk kemajuan bangsa.
+              Himpunan Pemuda Pelajar dan Mahasiswa Sukabumi, atau disingkat HIPPMA Sukabumi, adalah 
+              sebuah organisasi yang didirikan pada tanggal 3 Mei 2022 di Kabupaten Sukabumi, Jawa Barat.
+               Organisasi ini memiliki fokus utama pada pemberdayaan pemuda, pelajar, dan mahasiswa yang 
+               memiliki kepedulian terhadap kegiatan-kegiatan sosial masyarakat. Himpunan Pemuda Pelajar 
+               Mahasiswa (HIPPMA) adalah salah satu organisasi kepemudaan yang aktif dalam berbagai 
+               bidang, terutama dalam hal sosial, pendidikan, dan kesehatan. Organisasi ini merupakan 
+               wadah bagi pemuda, pelajar, dan mahasiswa untuk bersama-sama berkontribusi dalam 
+               pembangunan sumber daya manusia khususnya pemuda melalui berbagai program.
+
             </p>
           </CardContent>
         </Card>

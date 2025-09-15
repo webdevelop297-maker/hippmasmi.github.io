@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -26,13 +27,16 @@ const Navigation = () => {
           {/* Logo + Nama Organisasi */}
           <Link to="/" className="flex items-center space-x-3">
             <img
-              src="public\logo.png" // letakkan file logo di folder public/logo.png
+              src="/logo.png" // letakkan file logo di folder public/logo.png
               alt="Logo Organisasi"
-              className="h-10 w-10 object-contain rounded-full"
+              className="h-12 w-12 object-contain rounded-full"
             />
-            <span className="font-bold text-xl text-foreground">
-              Nama Organisasi
-            </span>
+         <div className="flex flex-col leading-tight">
+              <span className="font-bold text-xl text-foreground">HIPPMA</span>
+              <span className="text-xs text-muted-foreground">
+                Himpunan Pemuda Pelajar Mahasiswa Sukabumi
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
