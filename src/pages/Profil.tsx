@@ -18,13 +18,7 @@ const Profil = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">
-                <li><b>KOLABORATIF :</b> Kolaboratif merupakan bentuk pergerakan HIPPMA yang selalu 
-                  bekerjasama dengan intansi atau organisasi untuk mencapai tujuan bersama</li>
-                <li><b>SOLUTIF :</b> HIPPMA menjadi pemecah masalah tidak hanya mengkritik, tapi memberikan 
-                  dan menawarkan solusi</li>
-                <li><b>PEDULI :</b> HIPPMA peduli sesame berarti kita akan selalu ada untuk masyarakat</li>
-                <li><b>MEMBERDAYAKAN :</b> Memberdayakan dalam HIPPMA akan selalu dijunjung tinggi karena kami 
-                  percaya dengan sama-sama memberdayakan semuanya lebih hebat</li>
+                <p><b>BERGERAK BERSAMA BANGUN SUKABUMI</b></p>
               </p>
             </CardContent>
           </Card>
@@ -35,14 +29,16 @@ const Profil = () => {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-muted-foreground">
-                <p><b>1. MEMBERDAYAKAN PEMUDA DAN MASYARAKAT</b></p>
-                <p>Himpunan Pemuda Pelajar Mahasiswa (HIPPMA) selalu berusaha untuk memberdayakan 
-                  pemuda dan masyarakat untuk berpartisipasi dalam pembangunan daerah khusus nya dalam 
-                  bidang pendidikan, kesehatan, dan sosial.</p>
-                <p><b>2. MENGINSPIRASI SELURUH LAPISAN MASYARAKAT</b></p>    
-                <p>Himpunan Pemuda Pelajar Mahasiswa (HIPPMA) selalu berusaha untuk mengiinspirasi untuk 
-                  terus bergerak bagi perkembangan bangsa Indonesia maupun daerah melalui pemerataan 
-                  keadilan dan kesejahteraan.</p>
+                <p>1. Menjadi wadah pengembangan potensi, peningkatan kualitas diri, 
+                  dan pemberdayaan pemuda pelajar mahasiswa di Sukabumi.</p>
+                <p> 2. Meningkatkan daya kritis kesadaran pemuda pelajar mahasiswa 
+                  tentang isu-isu sosial, budaya, politik, lingkungan, dan pendidikan 
+                  untuk berkontribusi dalam pembangunan masyarakat.</p>
+                <p>3. Membangun sinergi, kerjasama, dan solidaritas di antara anggota 
+                  Hippma Sukabumi untuk mencapai tujuan bersama.</p>
+                  <p>4. Ikut serta dalam menyumbangkan karya dan pemikiran guna 
+                    pembangunan daerah bangsa dan negara.</p>
+                
               </ul>
             </CardContent>
           </Card>

@@ -298,30 +298,43 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <Card className="shadow-card bg-gradient-primary text-primary-foreground">
-            <CardContent className="py-12">
-              <h2 className="text-3xl font-bold mb-4">
-                Bergabung Bersama Kami
-              </h2>
-              <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-                Jadilah bagian dari perubahan positif untuk Indonesia. Hubungi
-                kami untuk informasi keanggotaan dan program organisasi.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Badge variant="secondary" className="text-base px-4 py-2">
-                  📧 info@organisasi.id
-                </Badge>
-                <Badge variant="secondary" className="text-base px-4 py-2">
-                  📱 +62 812-3456-7890
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+{/* Contact Section */}
+<section className="py-16">
+  <div className="max-w-4xl mx-auto px-4 text-center">
+    <Card className="shadow-card bg-gradient-primary text-primary-foreground">
+      <CardContent className="py-12">
+        <h2 className="text-3xl font-bold mb-4">
+          Bergabung Bersama Kami
+        </h2>
+        <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
+          Jadilah bagian dari perubahan positif untuk Indonesia. Hubungi
+          kami untuk informasi keanggotaan dan program organisasi.
+        </p>
+
+        {/* Logo Mitra */}
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-6">Mitra Kami</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 items-center justify-items-center">
+            <img src="/mitra1.png" alt="Logo Mitra 1" className="h-16 object-contain" />
+            <img src="/mitra2.png" alt="Logo Mitra 2" className="h-16 object-contain" />
+            <img src="/mitra3.png" alt="Logo Mitra 3" className="h-16 object-contain" />
+            <img src="/mitra4.png" alt="Logo Mitra 4" className="h-16 object-contain" />
+          </div>
         </div>
-      </section>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Badge variant="secondary" className="text-base px-4 py-2">
+            📧 info@organisasi.id
+          </Badge>
+          <Badge variant="secondary" className="text-base px-4 py-2">
+            📱 +62 812-3456-7890
+          </Badge>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</section>
+
     </div>
   );
 };

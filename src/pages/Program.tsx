@@ -13,6 +13,7 @@ interface ProgramItem {
   peserta?: string;
   periode?: string;
   hasil?: string;
+  foto?: string;
 }
 
 const Program = () => {
@@ -65,6 +66,19 @@ const Program = () => {
               key={program.id}
               className="shadow-card hover:shadow-hover transition-shadow"
             >
+              {/* Foto Program */}
+              {program.foto ? (
+                <img
+                  src={program.foto}
+                  alt={program.nama}
+                  className="w-full h-48 object-cover rounded-t-2xl"
+                />
+              ) : (
+                <div className="w-full h-48 flex items-center justify-center bg-muted text-muted-foreground rounded-t-2xl">
+                  Belum ada foto
+                </div>
+              )}
+
               <CardHeader>
                 <div className="flex justify-between items-start mb-2">
                   <CardTitle className="text-lg">{program.nama}</CardTitle>
@@ -76,11 +90,13 @@ const Program = () => {
                   {program.kategori}
                 </Badge>
               </CardHeader>
+
               <CardContent>
                 <p className="text-muted-foreground mb-4">
                   {program.deskripsi}
                 </p>
 
+                {/* Detail Program */}
                 {program.status === "Aktif" && (
                   <div className="space-y-2 text-sm">
                     {program.peserta && (
