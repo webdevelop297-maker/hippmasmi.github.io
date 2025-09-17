@@ -212,7 +212,7 @@ const ArticleDetail = () => {
                     <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
                       {item.content.replace(/<[^>]+>/g, "").slice(0, 100)}...
                     </p>
-                    <Link to={`/artikel/${item.id}`}>
+                    <Link to={`/berita/${item.id}`}>
                       <Button size="sm" variant="outline" className="w-full">
                         Baca Selengkapnya
                       </Button>
