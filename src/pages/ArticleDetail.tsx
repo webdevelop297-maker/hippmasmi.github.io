@@ -1,8 +1,8 @@
 // src/pages/ArticleDetail.tsx
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User, ArrowLeft, Share2 } from "lucide-react";
@@ -24,8 +24,10 @@ const ArticleDetail = () => {
   const { toast } = useToast();
 
   const [article, setArticle] = useState<NewsItem | null>(null);
+  const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch artikel utama
   useEffect(() => {
     const fetchArticle = async () => {
       setLoading(true);
@@ -46,6 +48,27 @@ const ArticleDetail = () => {
     if (id) fetchArticle();
   }, [id]);
 
+  // Fetch berita lainnya
+  useEffect(() => {
+    const fetchRelated = async () => {
+      if (!id) return;
+      const { data, error } = await supabase
+        .from("news")
+        .select("*")
+        .neq("id", id) // bukan artikel ini
+        .order("date", { ascending: false })
+        .limit(3);
+
+      if (error) {
+        console.error("Error fetching related news:", error.message);
+      } else {
+        setRelatedNews(data || []);
+      }
+    };
+
+    fetchRelated();
+  }, [id]);
+
   if (loading) {
     return <p className="text-center py-10">Loading artikel...</p>;
   }
@@ -61,7 +84,7 @@ const ArticleDetail = () => {
             <p className="text-muted-foreground mb-6">
               Artikel yang Anda cari tidak dapat ditemukan.
             </p>
-            <Button onClick={() => navigate("/NewsAll")}>
+            <Button onClick={() => navigate("/news")} variant="outline">
               <ArrowLeft size={16} className="mr-2" />
               Kembali ke Berita
             </Button>
@@ -100,7 +123,17 @@ const ArticleDetail = () => {
     <div className="min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Tombol Kembali */}
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => {
+            if (window.history.length > 2) {
+              navigate(-1);
+            } else {
+              navigate("/news");
+            }
+          }}
+          className="mb-6"
+        >
           <ArrowLeft size={16} className="mr-2" />
           Kembali ke Berita
         </Button>
@@ -155,6 +188,43 @@ const ArticleDetail = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* 🔥 Berita Lainnya */}
+      {relatedNews.length > 0 && (
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-5xl mx-auto px-4">
+            <h2 className="text-2xl font-bold mb-6">Berita Lainnya</h2>
+            <div className="grid gap-6 md:grid-cols-3">
+              {relatedNews.map((item) => (
+                <Card key={item.id} className="shadow-card hover:shadow-hover transition-shadow">
+                  <CardHeader>
+                    <Badge className="mb-2">{item.category}</Badge>
+                    <CardTitle className="line-clamp-2">{item.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-32 object-cover rounded mb-3"
+                      />
+                    )}
+                    <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+                      {item.content.replace(/<[^>]+>/g, "").slice(0, 100)}...
+                    </p>
+                    <Link to={`/artikel/${item.id}`}>
+                      <Button size="sm" variant="outline" className="w-full">
+                        Baca Selengkapnya
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Contact Section */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -167,48 +237,35 @@ const ArticleDetail = () => {
                 Jadilah bagian dari perubahan positif untuk Indonesia. Hubungi
                 kami untuk informasi keanggotaan dan program organisasi.
               </p>
-      
-              {/* Logo Mitra */}
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-6">Mitra Kami</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5 items-center justify-items-center">
-                  <img src="/mitra1.png" alt="Logo Mitra 1" className="h-16 object-contain" />
-                  <img src="/mitra2.png" alt="Logo Mitra 2" className="h-16 object-contain" />
-                  <img src="/mitra3.png" alt="Logo Mitra 3" className="h-16 object-contain" />
-                  <img src="/mitra4.png" alt="Logo Mitra 4" className="h-16 object-contain" />
-                  <img src="/mitra5.png" alt="Logo Mitra 5" className="h-16 object-contain" />
-                </div>
-              </div>
-      
+
+              {/* Kontak */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="mailto:hippmasukabumi21@gmail.com">
-              <Badge
-                variant="secondary"
-                className="text-base px-4 py-2 hover:bg-secondary/80 transition-colors cursor-pointer"
-              >
-                📧 hippmasukabumi21@gmail.com
-              </Badge>
-            </a>
-      
-            <a
-              href="https://wa.me/6285793343170"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Badge
-                variant="secondary"
-                className="text-base px-4 py-2 hover:bg-secondary/80 transition-colors cursor-pointer"
-              >
-                📱 +62 857-9334-3170
-              </Badge>
-            </a>
-          </div>
+                  <Badge
+                    variant="secondary"
+                    className="text-base px-4 py-2 hover:bg-secondary/80 transition-colors cursor-pointer"
+                  >
+                    📧 hippmasukabumi21@gmail.com
+                  </Badge>
+                </a>
+                <a
+                  href="https://wa.me/6285793343170"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Badge
+                    variant="secondary"
+                    className="text-base px-4 py-2 hover:bg-secondary/80 transition-colors cursor-pointer"
+                  >
+                    📱 +62 857-9334-3170
+                  </Badge>
+                </a>
+              </div>
             </CardContent>
           </Card>
         </div>
       </section>
     </div>
-    
   );
 };
 
