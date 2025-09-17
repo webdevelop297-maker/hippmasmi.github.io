@@ -1,26 +1,33 @@
-// src/pages/DatabaseKader.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, PlusCircle, UserCog, Edit } from "lucide-react";
+import {
+  LogOut,
+  PlusCircle,
+  Edit,
+  Trash2,
+  UserCog,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 const DatabaseKader = () => {
+  // --- STATE ---
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [kaderData, setKaderData] = useState<any[]>([]);
   const [loginForm, setLoginForm] = useState({ id: "", password: "" });
 
-  // detail profil
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedKader, setSelectedKader] = useState<any>(null);
-
-  // modal tambah kader (admin only)
+  // modal tambah kader
   const [showAddModal, setShowAddModal] = useState(false);
   const [newKader, setNewKader] = useState<any>({
     id: "",
@@ -37,25 +44,17 @@ const DatabaseKader = () => {
     password: "",
   });
 
-  // modal ganti username/password admin
-  const [showChangeUserModal, setShowChangeUserModal] = useState(false);
-  const [userUpdate, setUserUpdate] = useState({ id: "", password: "" });
+  // modal edit kader
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editKader, setEditKader] = useState<any>(null);
 
-  // modal edit profil kader sendiri
-  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const [profileUpdate, setProfileUpdate] = useState<any>({
-    nama: "",
-    nomorWA: "",
-    alamat: "",
-    foto: null,
-  });
-
-  // modal ganti password kader sendiri
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [passwordUpdate, setPasswordUpdate] = useState("");
+  // modal ganti kredensial
+  const [showChangeCredModal, setShowChangeCredModal] = useState(false);
+  const [credForm, setCredForm] = useState({ id: "", password: "" });
 
   const [isSaving, setIsSaving] = useState(false);
 
+  // --- FETCH DATA ---
   const fetchKader = async () => {
     const { data } = await supabase.from("kader").select("*");
     setKaderData(data || []);
@@ -71,7 +70,7 @@ const DatabaseKader = () => {
     }
   }, []);
 
-  // login manual
+  // --- LOGIN / LOGOUT ---
   const handleLogin = async () => {
     const { data, error } = await supabase
       .from("users")
@@ -97,7 +96,7 @@ const DatabaseKader = () => {
     localStorage.removeItem("currentUser");
   };
 
-  // tambah kader (admin only)
+  // --- TAMBAH KADER (admin) ---
   const handleAddKader = async () => {
     if (!newKader.id || !newKader.nama) {
       alert("ID dan Nama wajib diisi!");
@@ -105,7 +104,6 @@ const DatabaseKader = () => {
     }
 
     setIsSaving(true);
-
     try {
       let fotoUrl = "";
       if (newKader.foto instanceof File) {
@@ -159,93 +157,85 @@ const DatabaseKader = () => {
     }
   };
 
-  // update username/password admin
-  const handleUpdateUser = async () => {
-    if (!userUpdate.id || !userUpdate.password) {
-      alert("Username dan Password wajib diisi!");
-      return;
-    }
+  // --- UPDATE KADER ---
+  const handleUpdateKader = async () => {
+    if (!editKader) return;
+
     setIsSaving(true);
     try {
-      await supabase
-        .from("users")
-        .update({
-          id: userUpdate.id,
-          password: userUpdate.password,
-        })
-        .eq("id", currentUser.id);
+      let fotoUrl = editKader.foto;
+      if (editKader.foto instanceof File) {
+        const fileName = `${Date.now()}-${editKader.foto.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("kader-foto")
+          .upload(fileName, editKader.foto);
 
-      const updatedUser = {
-        ...currentUser,
-        id: userUpdate.id,
-        password: userUpdate.password,
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from("kader-foto")
+            .getPublicUrl(fileName);
+          fotoUrl = urlData.publicUrl;
+        }
+      }
+
+      const updateData: any = {
+        alamat: editKader.alamat,
+        nomorWA: editKader.nomorWA,
+        foto: fotoUrl,
       };
-      setCurrentUser(updatedUser);
-      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
 
-      alert("Username dan Password berhasil diperbarui!");
-      setShowChangeUserModal(false);
+      // admin bisa update semua field
+      if (currentUser?.role === "admin") {
+        updateData.nama = editKader.nama;
+        updateData.ttl = editKader.ttl;
+        updateData.jabatan = editKader.jabatan;
+        updateData.agama = editKader.agama;
+        updateData.status = editKader.status;
+      }
+
+      await supabase.from("kader").update(updateData).eq("id", editKader.id);
+
+      alert("Data kader berhasil diperbarui!");
+      fetchKader();
+      setShowEditModal(false);
     } finally {
       setIsSaving(false);
     }
   };
 
-  // update profil kader sendiri
-  const handleUpdateProfile = async () => {
-    let fotoUrl = selectedKader?.foto || "";
-
-    if (profileUpdate.foto instanceof File) {
-      const fileName = `${Date.now()}-${profileUpdate.foto.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("kader-foto")
-        .upload(fileName, profileUpdate.foto, { upsert: true });
-
-      if (uploadError) {
-        alert("Gagal upload foto: " + uploadError.message);
-        return;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from("kader-foto")
-        .getPublicUrl(fileName);
-
-      fotoUrl = urlData.publicUrl;
-    }
-
-    await supabase
-      .from("kader")
-      .update({
-        nama: profileUpdate.nama,
-        nomorWA: profileUpdate.nomorWA,
-        alamat: profileUpdate.alamat,
-        foto: fotoUrl,
-      })
-      .eq("id", currentUser.id);
-
-    alert("Profil berhasil diperbarui!");
-    setShowEditProfileModal(false);
+  // --- HAPUS KADER (admin) ---
+  const handleDeleteKader = async (id: string) => {
+    if (!confirm("Yakin ingin hapus kader ini?")) return;
+    await supabase.from("kader").delete().eq("id", id);
+    await supabase.from("users").delete().eq("id", id);
     fetchKader();
   };
 
-  // update password kader sendiri
-  const handleUpdatePassword = async () => {
-    if (!passwordUpdate) {
-      alert("Password tidak boleh kosong!");
+  // --- GANTI USERNAME / PASSWORD ---
+  const handleChangeCredentials = async () => {
+    if (!credForm.password) {
+      alert("Password wajib diisi!");
       return;
     }
-    await supabase
-      .from("users")
-      .update({ password: passwordUpdate })
-      .eq("id", currentUser.id);
 
-    alert("Password berhasil diganti!");
-    setShowChangePasswordModal(false);
+    setIsSaving(true);
+    try {
+      const updateData: any = { password: credForm.password };
+      if (currentUser?.role === "admin" && credForm.id) {
+        updateData.id = credForm.id;
+      }
 
-    const updatedUser = { ...currentUser, password: passwordUpdate };
-    setCurrentUser(updatedUser);
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+      await supabase.from("users").update(updateData).eq("id", currentUser.id);
+
+      alert("Kredensial berhasil diperbarui, silakan login ulang.");
+      handleLogout(); // paksa logout
+    } finally {
+      setIsSaving(false);
+      setShowChangeCredModal(false);
+    }
   };
 
+  // --- UTIL ---
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Aktif":
@@ -271,13 +261,33 @@ const DatabaseKader = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold">Database Kader</h1>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Input
-            placeholder="Cari kader..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-
-          {!isLoggedIn ? (
+          {isLoggedIn ? (
+            <>
+              {currentUser?.role === "admin" && (
+                <>
+                  <Button asChild variant="secondary">
+                    <Link to="/admin/berita">Kelola Berita</Link>
+                  </Button>
+                  <Button asChild variant="secondary">
+                    <Link to="/program-admin">Kelola Program</Link>
+                  </Button>
+                  <Button onClick={() => setShowAddModal(true)}>
+                    <PlusCircle className="w-4 h-4 mr-1" /> Tambah Kader
+                  </Button>
+                </>
+              )}
+              <Button
+                variant="secondary"
+                onClick={() => setShowChangeCredModal(true)}
+              >
+                <UserCog className="w-4 h-4 mr-1" />{" "}
+                Ganti {currentUser?.role === "admin" ? "Username/Password" : "Password"}
+              </Button>
+              <Button variant="destructive" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-1" /> Logout
+              </Button>
+            </>
+          ) : (
             <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 placeholder="ID"
@@ -296,25 +306,14 @@ const DatabaseKader = () => {
               />
               <Button onClick={handleLogin}>Login</Button>
             </div>
-          ) : (
-            <Button variant="destructive" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-1" /> Logout
-            </Button>
           )}
         </div>
       </div>
 
-      {/* daftar kader */}
+      {/* Daftar kader */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         {filteredKader.map((kader) => (
-          <Card
-            key={kader.id}
-            className="text-center cursor-pointer hover:shadow-lg"
-            onClick={() => {
-              setSelectedKader(kader);
-              setShowDetailModal(true);
-            }}
-          >
+          <Card key={kader.id} className="text-center">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>{kader.nama}</CardTitle>
@@ -332,121 +331,136 @@ const DatabaseKader = () => {
                 />
               )}
               <p className="font-medium">{kader.jabatan}</p>
+              {isLoggedIn && (
+                <div className="text-sm text-muted-foreground mt-2 space-y-1">
+                  <p>TTL: {kader.ttl}</p>
+                  <p>Jenis Kelamin: {kader.jenisKelamin}</p>
+                  <p>Agama: {kader.agama}</p>
+                  <p>Alamat: {kader.alamat}</p>
+                  <p>No. WA: {kader.nomorWA}</p>
+                </div>
+              )}
+
+              {/* Aksi edit */}
+              {isLoggedIn &&
+                (currentUser?.role === "admin" ||
+                  currentUser?.id === kader.id) && (
+                  <div className="flex justify-center gap-2 mt-3">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setEditKader(kader);
+                        setShowEditModal(true);
+                      }}
+                    >
+                      <Edit className="w-4 h-4 mr-1" /> Edit
+                    </Button>
+
+                    {currentUser?.role === "admin" && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteKader(kader.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" /> Hapus
+                      </Button>
+                    )}
+                  </div>
+                )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Modal detail profil */}
-      {showDetailModal && selectedKader && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      {/* Modal tambah kader */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
           <Card className="w-full max-w-lg">
             <CardHeader>
-              <CardTitle>Profil Kader</CardTitle>
+              <CardTitle>Tambah Kader</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-left">
-              {selectedKader.foto && (
-                <img
-                  src={selectedKader.foto}
-                  alt={selectedKader.nama}
-                  className="w-32 h-32 object-cover rounded-full mb-3 border mx-auto"
-                />
-              )}
-              <p><b>Nama:</b> {selectedKader.nama}</p>
-              <p><b>Jabatan:</b> {selectedKader.jabatan}</p>
-              <p><b>Nomor WA:</b> {selectedKader.nomorWA}</p>
-              <p><b>Alamat:</b> {selectedKader.alamat}</p>
-              <p><b>Status:</b> {selectedKader.status}</p>
-
-              {/* Aksi khusus kader login */}
-              {currentUser?.role === "kader" &&
-                selectedKader.id === currentUser.id && (
-                  <div className="mt-4 flex gap-2">
-                    <Button
-                      onClick={() => {
-                        setProfileUpdate({
-                          nama: selectedKader.nama,
-                          nomorWA: selectedKader.nomorWA,
-                          alamat: selectedKader.alamat,
-                          foto: null,
-                        });
-                        setShowEditProfileModal(true);
-                      }}
-                    >
-                      <Edit className="w-4 h-4 mr-1" /> Edit Profil
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => setShowChangePasswordModal(true)}
-                    >
-                      <UserCog className="w-4 h-4 mr-1" /> Ganti Password
-                    </Button>
-                  </div>
-                )}
-
-              <div className="mt-4">
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowDetailModal(false)}
-                >
-                  Tutup
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Modal edit profil kader */}
-      {showEditProfileModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>Edit Profil Saya</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                placeholder="ID"
+                value={newKader.id}
+                onChange={(e) =>
+                  setNewKader({ ...newKader, id: e.target.value })
+                }
+              />
               <Input
                 placeholder="Nama"
-                value={profileUpdate.nama}
+                value={newKader.nama}
                 onChange={(e) =>
-                  setProfileUpdate({ ...profileUpdate, nama: e.target.value })
+                  setNewKader({ ...newKader, nama: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Tempat Tanggal Lahir"
+                value={newKader.ttl}
+                onChange={(e) =>
+                  setNewKader({ ...newKader, ttl: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Nomor Anggota"
+                value={newKader.nomorAnggota}
+                onChange={(e) =>
+                  setNewKader({ ...newKader, nomorAnggota: e.target.value })
                 }
               />
               <Input
                 placeholder="Nomor WA"
-                value={profileUpdate.nomorWA}
+                value={newKader.nomorWA}
                 onChange={(e) =>
-                  setProfileUpdate({
-                    ...profileUpdate,
-                    nomorWA: e.target.value,
-                  })
+                  setNewKader({ ...newKader, nomorWA: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Jabatan"
+                value={newKader.jabatan}
+                onChange={(e) =>
+                  setNewKader({ ...newKader, jabatan: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Agama"
+                value={newKader.agama}
+                onChange={(e) =>
+                  setNewKader({ ...newKader, agama: e.target.value })
                 }
               />
               <Input
                 placeholder="Alamat"
-                value={profileUpdate.alamat}
+                value={newKader.alamat}
                 onChange={(e) =>
-                  setProfileUpdate({
-                    ...profileUpdate,
-                    alamat: e.target.value,
-                  })
+                  setNewKader({ ...newKader, alamat: e.target.value })
                 }
               />
-              <input
+              <Input
                 type="file"
                 accept="image/*"
                 onChange={(e) =>
-                  setProfileUpdate({
-                    ...profileUpdate,
-                    foto: e.target.files ? e.target.files[0] : null,
+                  setNewKader({
+                    ...newKader,
+                    foto: e.target.files?.[0] || null,
                   })
                 }
               />
-              <div className="flex gap-2 mt-2">
-                <Button onClick={handleUpdateProfile}>Simpan</Button>
+              <Input
+                type="password"
+                placeholder="Password"
+                value={newKader.password}
+                onChange={(e) =>
+                  setNewKader({ ...newKader, password: e.target.value })
+                }
+              />
+              <div className="col-span-1 sm:col-span-2 flex gap-2 mt-2">
+                <Button onClick={handleAddKader} disabled={isSaving}>
+                  {isSaving ? "Menyimpan..." : "Simpan"}
+                </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => setShowEditProfileModal(false)}
+                  onClick={() => setShowAddModal(false)}
                 >
                   Batal
                 </Button>
@@ -456,25 +470,121 @@ const DatabaseKader = () => {
         </div>
       )}
 
-      {/* Modal ganti password kader */}
-      {showChangePasswordModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md">
+      {/* Modal edit kader */}
+      {showEditModal && editKader && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-lg">
             <CardHeader>
-              <CardTitle>Ganti Password Saya</CardTitle>
+              <CardTitle>Edit Kader</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Admin bisa edit semua, kader hanya alamat, WA, foto */}
+              {currentUser?.role === "admin" && (
+                <>
+                  <Input
+                    placeholder="Nama"
+                    value={editKader.nama}
+                    onChange={(e) =>
+                      setEditKader({ ...editKader, nama: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="Jabatan"
+                    value={editKader.jabatan}
+                    onChange={(e) =>
+                      setEditKader({ ...editKader, jabatan: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="TTL"
+                    value={editKader.ttl}
+                    onChange={(e) =>
+                      setEditKader({ ...editKader, ttl: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="Agama"
+                    value={editKader.agama}
+                    onChange={(e) =>
+                      setEditKader({ ...editKader, agama: e.target.value })
+                    }
+                  />
+                </>
+              )}
               <Input
-                type="password"
-                placeholder="Password baru"
-                value={passwordUpdate}
-                onChange={(e) => setPasswordUpdate(e.target.value)}
+                placeholder="Alamat"
+                value={editKader.alamat}
+                onChange={(e) =>
+                  setEditKader({ ...editKader, alamat: e.target.value })
+                }
               />
-              <div className="flex gap-2 mt-2">
-                <Button onClick={handleUpdatePassword}>Simpan</Button>
+              <Input
+                placeholder="No. WA"
+                value={editKader.nomorWA}
+                onChange={(e) =>
+                  setEditKader({ ...editKader, nomorWA: e.target.value })
+                }
+              />
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setEditKader({
+                    ...editKader,
+                    foto: e.target.files?.[0] || editKader.foto,
+                  })
+                }
+              />
+              <div className="col-span-1 sm:col-span-2 flex gap-2 mt-2">
+                <Button onClick={handleUpdateKader} disabled={isSaving}>
+                  {isSaving ? "Menyimpan..." : "Simpan"}
+                </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => setShowChangePasswordModal(false)}
+                  onClick={() => setShowEditModal(false)}
+                >
+                  Batal
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal ganti username/password */}
+      {showChangeCredModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>
+                Ganti {currentUser?.role === "admin" ? "Username / Password" : "Password"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {currentUser?.role === "admin" && (
+                <Input
+                  placeholder="Username Baru"
+                  value={credForm.id}
+                  onChange={(e) =>
+                    setCredForm({ ...credForm, id: e.target.value })
+                  }
+                />
+              )}
+              <Input
+                type="password"
+                placeholder="Password Baru"
+                value={credForm.password}
+                onChange={(e) =>
+                  setCredForm({ ...credForm, password: e.target.value })
+                }
+              />
+              <div className="flex gap-2 mt-2">
+                <Button onClick={handleChangeCredentials} disabled={isSaving}>
+                  {isSaving ? "Menyimpan..." : "Simpan"}
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowChangeCredModal(false)}
                 >
                   Batal
                 </Button>
