@@ -1,3 +1,4 @@
+// src/pages/DatabaseKader.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -32,13 +33,26 @@ const DatabaseKader = () => {
     password: "",
   });
 
-  // modal edit kader
+  // modal edit kader (khusus admin)
   const [showEditModal, setShowEditModal] = useState(false);
   const [editKader, setEditKader] = useState<any>(null);
 
   // modal ganti username/password admin
   const [showChangeUserModal, setShowChangeUserModal] = useState(false);
   const [userUpdate, setUserUpdate] = useState({ id: "", password: "" });
+
+  // modal edit profil kader sendiri
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [profileUpdate, setProfileUpdate] = useState<any>({
+    nama: "",
+    nomorWA: "",
+    alamat: "",
+  });
+
+  // modal ganti password kader sendiri
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [passwordUpdate, setPasswordUpdate] = useState("");
+
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchKader = async () => {
@@ -144,7 +158,7 @@ const DatabaseKader = () => {
     }
   };
 
-  // hapus kader
+  // hapus kader (admin only)
   const handleDeleteKader = async (id: string) => {
     if (!confirm("Yakin ingin hapus kader ini?")) return;
     await supabase.from("kader").delete().eq("id", id);
@@ -168,8 +182,11 @@ const DatabaseKader = () => {
         })
         .eq("id", currentUser.id);
 
-      // update localStorage
-      const updatedUser = { ...currentUser, id: userUpdate.id, password: userUpdate.password };
+      const updatedUser = {
+        ...currentUser,
+        id: userUpdate.id,
+        password: userUpdate.password,
+      };
       setCurrentUser(updatedUser);
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
 
@@ -178,6 +195,41 @@ const DatabaseKader = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // update profil kader sendiri
+  const handleUpdateProfile = async () => {
+    await supabase
+      .from("kader")
+      .update({
+        nama: profileUpdate.nama,
+        nomorWA: profileUpdate.nomorWA,
+        alamat: profileUpdate.alamat,
+      })
+      .eq("id", currentUser.id);
+
+    alert("Profil berhasil diperbarui!");
+    setShowEditProfileModal(false);
+    fetchKader();
+  };
+
+  // update password kader sendiri
+  const handleUpdatePassword = async () => {
+    if (!passwordUpdate) {
+      alert("Password tidak boleh kosong!");
+      return;
+    }
+    await supabase
+      .from("users")
+      .update({ password: passwordUpdate })
+      .eq("id", currentUser.id);
+
+    alert("Password berhasil diganti!");
+    setShowChangePasswordModal(false);
+
+    const updatedUser = { ...currentUser, password: passwordUpdate };
+    setCurrentUser(updatedUser);
+    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
   };
 
   const getStatusColor = (status: string) => {
@@ -218,14 +270,45 @@ const DatabaseKader = () => {
                   <Button onClick={() => setShowAddModal(true)}>
                     <PlusCircle className="w-4 h-4 mr-1" /> Tambah Kader
                   </Button>
-                  <Button onClick={() => {
-                    setUserUpdate({ id: currentUser.id, password: currentUser.password });
-                    setShowChangeUserModal(true);
-                  }}>
+                  <Button
+                    onClick={() => {
+                      setUserUpdate({
+                        id: currentUser.id,
+                        password: currentUser.password,
+                      });
+                      setShowChangeUserModal(true);
+                    }}
+                  >
                     <UserCog className="w-4 h-4 mr-1" /> Update Password
                   </Button>
                 </>
               )}
+
+              {currentUser?.role === "kader" && (
+                <>
+                  <Button
+                    onClick={() => {
+                      const kaderProfile = kaderData.find(
+                        (k) => k.id === currentUser.id
+                      );
+                      if (kaderProfile) {
+                        setProfileUpdate({
+                          nama: kaderProfile.nama,
+                          nomorWA: kaderProfile.nomorWA,
+                          alamat: kaderProfile.alamat,
+                        });
+                      }
+                      setShowEditProfileModal(true);
+                    }}
+                  >
+                    <Edit className="w-4 h-4 mr-1" /> Edit Profil
+                  </Button>
+                  <Button onClick={() => setShowChangePasswordModal(true)}>
+                    <UserCog className="w-4 h-4 mr-1" /> Ganti Password
+                  </Button>
+                </>
+              )}
+
               <Button variant="destructive" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-1" /> Logout
               </Button>
@@ -284,19 +367,23 @@ const DatabaseKader = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
           <Card className="w-full max-w-md">
             <CardHeader>
-              <CardTitle>Update Pasword</CardTitle>
+              <CardTitle>Update Pasword Admin</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Input
                 placeholder="Username baru"
                 value={userUpdate.id}
-                onChange={(e) => setUserUpdate({ ...userUpdate, id: e.target.value })}
+                onChange={(e) =>
+                  setUserUpdate({ ...userUpdate, id: e.target.value })
+                }
               />
               <Input
                 type="password"
                 placeholder="Password baru"
                 value={userUpdate.password}
-                onChange={(e) => setUserUpdate({ ...userUpdate, password: e.target.value })}
+                onChange={(e) =>
+                  setUserUpdate({ ...userUpdate, password: e.target.value })
+                }
               />
               <div className="flex gap-2 mt-2">
                 <Button onClick={handleUpdateUser} disabled={isSaving}>
@@ -305,6 +392,83 @@ const DatabaseKader = () => {
                 <Button
                   variant="destructive"
                   onClick={() => setShowChangeUserModal(false)}
+                >
+                  Batal
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal edit profil kader */}
+      {showEditProfileModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Edit Profil Saya</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Input
+                placeholder="Nama"
+                value={profileUpdate.nama}
+                onChange={(e) =>
+                  setProfileUpdate({ ...profileUpdate, nama: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Nomor WA"
+                value={profileUpdate.nomorWA}
+                onChange={(e) =>
+                  setProfileUpdate({
+                    ...profileUpdate,
+                    nomorWA: e.target.value,
+                  })
+                }
+              />
+              <Input
+                placeholder="Alamat"
+                value={profileUpdate.alamat}
+                onChange={(e) =>
+                  setProfileUpdate({
+                    ...profileUpdate,
+                    alamat: e.target.value,
+                  })
+                }
+              />
+              <div className="flex gap-2 mt-2">
+                <Button onClick={handleUpdateProfile}>Simpan</Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowEditProfileModal(false)}
+                >
+                  Batal
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal ganti password kader */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Ganti Password Saya</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Input
+                type="password"
+                placeholder="Password baru"
+                value={passwordUpdate}
+                onChange={(e) => setPasswordUpdate(e.target.value)}
+              />
+              <div className="flex gap-2 mt-2">
+                <Button onClick={handleUpdatePassword}>Simpan</Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowChangePasswordModal(false)}
                 >
                   Batal
                 </Button>
