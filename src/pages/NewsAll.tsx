@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface NewsItem {
   id: number;
@@ -64,10 +66,16 @@ const NewsAdmin = () => {
                 <p className="text-sm text-muted-foreground mb-2">
                   {item.excerpt}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mb-3">
                   {new Date(item.date).toLocaleDateString("id-ID")} —{" "}
                   {item.author}
                 </p>
+                {/* Tombol Baca Selengkapnya */}
+                <Link to={`/berita/${item.id}`}>
+                  <Button size="sm" variant="outline">
+                    Baca Selengkapnya →
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}

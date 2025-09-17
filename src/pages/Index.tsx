@@ -314,22 +314,38 @@ const Index = () => {
         {/* Logo Mitra */}
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-6">Mitra Kami</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 items-center justify-items-center">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5 items-center justify-items-center">
             <img src="/mitra1.png" alt="Logo Mitra 1" className="h-16 object-contain" />
             <img src="/mitra2.png" alt="Logo Mitra 2" className="h-16 object-contain" />
             <img src="/mitra3.png" alt="Logo Mitra 3" className="h-16 object-contain" />
             <img src="/mitra4.png" alt="Logo Mitra 4" className="h-16 object-contain" />
+            <img src="/mitra5.png" alt="Logo Mitra 5" className="h-16 object-contain" />
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Badge variant="secondary" className="text-base px-4 py-2">
-            📧 info@organisasi.id
-          </Badge>
-          <Badge variant="secondary" className="text-base px-4 py-2">
-            📱 +62 812-3456-7890
-          </Badge>
-        </div>
+          <a href="mailto:hippmasukabumi21@gmail.com">
+        <Badge
+          variant="secondary"
+          className="text-base px-4 py-2 hover:bg-secondary/80 transition-colors cursor-pointer"
+        >
+          📧 hippmasukabumi21@gmail.com
+        </Badge>
+      </a>
+
+      <a
+        href="https://wa.me/6285793343170"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Badge
+          variant="secondary"
+          className="text-base px-4 py-2 hover:bg-secondary/80 transition-colors cursor-pointer"
+        >
+          📱 +62 857-9334-3170
+        </Badge>
+      </a>
+    </div>
       </CardContent>
     </Card>
   </div>

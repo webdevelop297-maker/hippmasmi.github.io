@@ -14,7 +14,7 @@ const Navigation = () => {
     { path: "/struktur", label: "Struktur" },
     { path: "/sejarah", label: "Sejarah" },
     { path: "/program", label: "Program" },
-    { path: "/news", label: "Berita" },
+    { path: "/NewsAll", label: "Berita" },
     { path: "/database-kader", label: "Database Kader" },
   ];
 

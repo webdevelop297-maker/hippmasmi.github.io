@@ -169,8 +169,11 @@ const Sejarah = () => {
             </p>
           </CardContent>
         </Card>
+        
       </div>
+      
     </div>
+    
   );
 };
 
