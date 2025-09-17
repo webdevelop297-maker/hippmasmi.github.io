@@ -32,11 +32,14 @@ const DatabaseKader = () => {
     password: "",
   });
 
-  const [isSaving, setIsSaving] = useState(false);
-
   // modal edit kader
   const [showEditModal, setShowEditModal] = useState(false);
   const [editKader, setEditKader] = useState<any>(null);
+
+  // modal ganti username/password admin
+  const [showChangeUserModal, setShowChangeUserModal] = useState(false);
+  const [userUpdate, setUserUpdate] = useState({ id: "", password: "" });
+  const [isSaving, setIsSaving] = useState(false);
 
   const fetchKader = async () => {
     const { data } = await supabase.from("kader").select("*");
@@ -141,11 +144,40 @@ const DatabaseKader = () => {
     }
   };
 
+  // hapus kader
   const handleDeleteKader = async (id: string) => {
     if (!confirm("Yakin ingin hapus kader ini?")) return;
     await supabase.from("kader").delete().eq("id", id);
     await supabase.from("users").delete().eq("id", id);
     fetchKader();
+  };
+
+  // update username/password admin
+  const handleUpdateUser = async () => {
+    if (!userUpdate.id || !userUpdate.password) {
+      alert("Username dan Password wajib diisi!");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await supabase
+        .from("users")
+        .update({
+          id: userUpdate.id,
+          password: userUpdate.password,
+        })
+        .eq("id", currentUser.id);
+
+      // update localStorage
+      const updatedUser = { ...currentUser, id: userUpdate.id, password: userUpdate.password };
+      setCurrentUser(updatedUser);
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+
+      alert("Username dan Password berhasil diperbarui!");
+      setShowChangeUserModal(false);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -186,6 +218,12 @@ const DatabaseKader = () => {
                   <Button onClick={() => setShowAddModal(true)}>
                     <PlusCircle className="w-4 h-4 mr-1" /> Tambah Kader
                   </Button>
+                  <Button variant="outline" onClick={() => {
+                    setUserUpdate({ id: currentUser.id, password: currentUser.password });
+                    setShowChangeUserModal(true);
+                  }}>
+                    <UserCog className="w-4 h-4 mr-1" /> Ganti Username/Password
+                  </Button>
                 </>
               )}
               <Button variant="destructive" onClick={handleLogout}>
@@ -215,7 +253,7 @@ const DatabaseKader = () => {
         </div>
       </div>
 
-      {/* Daftar kader */}
+      {/* daftar kader */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
         {filteredKader.map((kader) => (
           <Card key={kader.id} className="text-center">
@@ -236,131 +274,37 @@ const DatabaseKader = () => {
                 />
               )}
               <p className="font-medium">{kader.jabatan}</p>
-              {isLoggedIn && (
-                <div className="text-sm text-muted-foreground mt-2 space-y-1">
-                  <p>Tempat Tanggal Lahir: {kader.ttl}</p>
-                  <p>Jenis Kelamin: {kader.jenisKelamin}</p>
-                  <p>Agama: {kader.agama}</p>
-                  <p>Alamat: {kader.alamat}</p>
-                  <p>No. WA: {kader.nomorWA}</p>
-                </div>
-              )}
-
-              {/* Aksi admin */}
-              {isLoggedIn && currentUser?.role === "admin" && (
-                <div className="flex justify-center gap-2 mt-3">
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setEditKader(kader);
-                      setShowEditModal(true);
-                    }}
-                  >
-                    <Edit className="w-4 h-4 mr-1" /> Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteKader(kader.id)}
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" /> Hapus
-                  </Button>
-                </div>
-              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Modal tambah kader */}
-      {showAddModal && (
+      {/* Modal ganti username/password admin */}
+      {showChangeUserModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-lg">
+          <Card className="w-full max-w-md">
             <CardHeader>
-              <CardTitle>Tambah Kader</CardTitle>
+              <CardTitle>Ganti Username & Password</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <CardContent className="space-y-3">
               <Input
-                placeholder="ID"
-                value={newKader.id}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, id: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Nama"
-                value={newKader.nama}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, nama: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Tempat Tanggal Lahir"
-                value={newKader.ttl}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, ttl: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Nomor Anggota"
-                value={newKader.nomorAnggota}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, nomorAnggota: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Nomor WA"
-                value={newKader.nomorWA}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, nomorWA: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Jabatan"
-                value={newKader.jabatan}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, jabatan: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Agama"
-                value={newKader.agama}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, agama: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Alamat"
-                value={newKader.alamat}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, alamat: e.target.value })
-                }
-              />
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setNewKader({
-                    ...newKader,
-                    foto: e.target.files?.[0] || null,
-                  })
-                }
+                placeholder="Username baru"
+                value={userUpdate.id}
+                onChange={(e) => setUserUpdate({ ...userUpdate, id: e.target.value })}
               />
               <Input
                 type="password"
-                placeholder="Password"
-                value={newKader.password}
-                onChange={(e) =>
-                  setNewKader({ ...newKader, password: e.target.value })
-                }
+                placeholder="Password baru"
+                value={userUpdate.password}
+                onChange={(e) => setUserUpdate({ ...userUpdate, password: e.target.value })}
               />
-              <div className="col-span-1 sm:col-span-2 flex gap-2 mt-2">
-                <Button onClick={handleAddKader} disabled={isSaving}>
+              <div className="flex gap-2 mt-2">
+                <Button onClick={handleUpdateUser} disabled={isSaving}>
                   {isSaving ? "Menyimpan..." : "Simpan"}
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => setShowChangeUserModal(false)}
                 >
                   Batal
                 </Button>
