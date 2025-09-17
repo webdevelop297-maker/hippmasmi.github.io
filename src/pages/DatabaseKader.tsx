@@ -218,11 +218,11 @@ const DatabaseKader = () => {
                   <Button onClick={() => setShowAddModal(true)}>
                     <PlusCircle className="w-4 h-4 mr-1" /> Tambah Kader
                   </Button>
-                  <Button variant="outline" onClick={() => {
+                  <Button onClick={() => {
                     setUserUpdate({ id: currentUser.id, password: currentUser.password });
                     setShowChangeUserModal(true);
                   }}>
-                    <UserCog className="w-4 h-4 mr-1" /> Ganti Username/Password
+                    <UserCog className="w-4 h-4 mr-1" /> Update Password
                   </Button>
                 </>
               )}
@@ -284,7 +284,7 @@ const DatabaseKader = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
           <Card className="w-full max-w-md">
             <CardHeader>
-              <CardTitle>Ganti Username & Password</CardTitle>
+              <CardTitle>Update Pasword</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Input
