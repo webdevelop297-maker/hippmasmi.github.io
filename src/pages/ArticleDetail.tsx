@@ -61,7 +61,7 @@ const ArticleDetail = () => {
             <p className="text-muted-foreground mb-6">
               Artikel yang Anda cari tidak dapat ditemukan.
             </p>
-            <Button onClick={() => navigate("/berita")}>
+            <Button onClick={() => navigate("/News")}>
               <ArrowLeft size={16} className="mr-2" />
               Kembali ke Berita
             </Button>
