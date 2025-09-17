@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 import Navigation from "@/components/Navigation";
 
-// Pages
+// Pages (public)
 import Index from "./pages/Index";
 import Profil from "./pages/Profil";
 import Struktur from "./pages/Struktur";
@@ -17,15 +17,15 @@ import Program from "./pages/Program";
 import DatabaseKader from "./pages/DatabaseKader";
 import NotFound from "./pages/NotFound";
 
-// News Pages
-import NewsAll from "@/pages/NewsAll"; // publik: daftar berita
+// News (public)
+import NewsAll from "@/pages/NewsAll";
 import ArticleDetail from "@/pages/ArticleDetail";
-import NewsAdmin from "@/pages/NewsAll"; // admin: kelola berita
 
-// Admin Pages
+// Admin
 import ProgramAdmin from "@/pages/ProgramAdmin";
+import NewsAdmin from "@/pages/NewsAdmin";
 
-// 🔒 Komponen proteksi (hanya untuk admin)
+// 🔒 Komponen proteksi (khusus admin)
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
@@ -33,14 +33,14 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
     const savedUser = localStorage.getItem("currentUser");
     if (savedUser) {
       const parsed = JSON.parse(savedUser);
-      setIsAdmin(parsed.role === "admin"); // hanya admin
+      setIsAdmin(parsed.role === "admin");
     } else {
       setIsAdmin(false);
     }
   }, []);
 
   if (isAdmin === null) return <p className="p-6 text-center">Loading...</p>;
-  if (!isAdmin) return <Navigate to="/" replace />; // redirect kalau bukan admin
+  if (!isAdmin) return <Navigate to="/" replace />;
 
   return children;
 }
@@ -65,7 +65,7 @@ const App = () => (
 
           {/* Berita publik */}
           <Route path="/news" element={<NewsAll />} />
-          <Route path="/artikel/:id" element={<ArticleDetail />} />
+          <Route path="/berita/:id" element={<ArticleDetail />} />
 
           {/* 🔒 Admin-only routes */}
           <Route

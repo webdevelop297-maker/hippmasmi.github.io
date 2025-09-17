@@ -47,14 +47,7 @@ const Sejarah = () => {
       foto: "/tokoh1.jpg",
       pesan:
         "HIPPMA Sukabumi merupakan salah satu organisasi kepemudaan yang memiliki peran dan konstribusi dalam perubahan sosial untuk mendorong pembangunan daerah",
-    },
-    {
-      nama: "Yandra Utama Santosa, S.P",
-      jabatan: "Ketua KNPI KAB. Sukabumi",
-      foto: "/tokoh2.png",
-      pesan:
-        "HIPPMA Sukabumi adalah organisasi kepemudaan yang membantu mewujudkan kabupaten sukabumi layak pemuda.",
-    },
+    }
   ];
 
   return (
@@ -135,7 +128,7 @@ const Sejarah = () => {
           <h2 className="text-2xl font-bold text-center text-foreground mb-8">
             WHAT THEY SAY ABOUT HIPPMA
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-1 gap-6">
             {testimoniTokoh.map((t, i) => (
               <Card key={i} className="shadow-card">
                 <CardHeader className="flex flex-col items-center">
